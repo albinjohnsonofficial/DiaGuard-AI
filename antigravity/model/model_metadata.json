@@ -1,0 +1,177 @@
+{
+    "feature_names": [
+        "Pregnancies",
+        "Glucose",
+        "BloodPressure",
+        "SkinThickness",
+        "Insulin",
+        "BMI",
+        "DiabetesPedigreeFunction",
+        "Age"
+    ],
+    "feature_ranges": {
+        "Pregnancies": {
+            "min": 0.0,
+            "max": 17.0,
+            "median": 3.0
+        },
+        "Glucose": {
+            "min": 0.0,
+            "max": 199.0,
+            "median": 117.0
+        },
+        "BloodPressure": {
+            "min": 0.0,
+            "max": 122.0,
+            "median": 72.0
+        },
+        "SkinThickness": {
+            "min": 0.0,
+            "max": 99.0,
+            "median": 23.0
+        },
+        "Insulin": {
+            "min": 0.0,
+            "max": 846.0,
+            "median": 30.5
+        },
+        "BMI": {
+            "min": 0.0,
+            "max": 67.1,
+            "median": 32.0
+        },
+        "DiabetesPedigreeFunction": {
+            "min": 0.078,
+            "max": 2.42,
+            "median": 0.3725
+        },
+        "Age": {
+            "min": 21.0,
+            "max": 81.0,
+            "median": 29.0
+        }
+    },
+    "test_metrics": {
+        "Logistic Regression": {
+            "Accuracy": 0.7077922077922078,
+            "Precision": 0.6,
+            "Recall": 0.5,
+            "F1-Score": 0.5454545454545454,
+            "ROC-AUC": 0.812962962962963,
+            "Confusion Matrix": [
+                [
+                    82,
+                    18
+                ],
+                [
+                    27,
+                    27
+                ]
+            ]
+        },
+        "Support Vector Machine (SVM)": {
+            "Accuracy": 0.7467532467532467,
+            "Precision": 0.6744186046511628,
+            "Recall": 0.5370370370370371,
+            "F1-Score": 0.5979381443298969,
+            "ROC-AUC": 0.8018518518518518,
+            "Confusion Matrix": [
+                [
+                    86,
+                    14
+                ],
+                [
+                    25,
+                    29
+                ]
+            ]
+        },
+        "Random Forest": {
+            "Accuracy": 0.7402597402597403,
+            "Precision": 0.6666666666666666,
+            "Recall": 0.5185185185185185,
+            "F1-Score": 0.5833333333333334,
+            "ROC-AUC": 0.8116666666666666,
+            "Confusion Matrix": [
+                [
+                    86,
+                    14
+                ],
+                [
+                    26,
+                    28
+                ]
+            ]
+        }
+    },
+    "cv_metrics": {
+        "Logistic Regression": {
+            "CV Accuracy": {
+                "mean": 0.7882313741170198,
+                "std": 0.019056824693417025
+            },
+            "CV Precision": {
+                "mean": 0.7638075920023182,
+                "std": 0.05977298511205282
+            },
+            "CV Recall": {
+                "mean": 0.5747508305647842,
+                "std": 0.022727749337524358
+            },
+            "CV F1": {
+                "mean": 0.6545454545454545,
+                "std": 0.024423199069116826
+            },
+            "CV ROC-AUC": {
+                "mean": 0.8433637873754153,
+                "std": 0.018549552071526722
+            }
+        },
+        "Support Vector Machine (SVM)": {
+            "CV Accuracy": {
+                "mean": 0.773610555777689,
+                "std": 0.015820871866915737
+            },
+            "CV Precision": {
+                "mean": 0.7393249070142522,
+                "std": 0.08300275128331633
+            },
+            "CV Recall": {
+                "mean": 0.5703211517165006,
+                "std": 0.07014435270039032
+            },
+            "CV F1": {
+                "mean": 0.6355737551112952,
+                "std": 0.023444973619246575
+            },
+            "CV ROC-AUC": {
+                "mean": 0.8311351052048727,
+                "std": 0.02557388470617373
+            }
+        },
+        "Random Forest": {
+            "CV Accuracy": {
+                "mean": 0.7703318672530988,
+                "std": 0.01982593964489193
+            },
+            "CV Precision": {
+                "mean": 0.722707514359057,
+                "std": 0.07003236391050584
+            },
+            "CV Recall": {
+                "mean": 0.5702104097452935,
+                "std": 0.03321225383650381
+            },
+            "CV F1": {
+                "mean": 0.6341062635978473,
+                "std": 0.016929517066077218
+            },
+            "CV ROC-AUC": {
+                "mean": 0.8344435215946845,
+                "std": 0.018580564022952648
+            }
+        }
+    },
+    "model_name": "Support Vector Machine (SVM - RBF Kernel)",
+    "course_outcome": "CO5 - Solve real life problems using appropriate machine learning models and evaluate the performance measures"
+}

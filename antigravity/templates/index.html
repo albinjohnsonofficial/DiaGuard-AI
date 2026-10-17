@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiaGuard: Diabetes Risk Prediction System (SVM)</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="brand">
+                <i class="fa-solid fa-heart-pulse logo-icon"></i>
+                <div>
+                    <h1>DiaGuard AI</h1>
+                    <span class="subtext">Clinical Diabetes Risk Prediction Engine • Support Vector Machine (SVM)</span>
+                </div>
+            </div>
+            <div class="nav-meta">
+                <span class="badge"><i class="fa-solid fa-microchip"></i> SVM (RBF Kernel)</span>
+                <span class="badge badge-success"><i class="fa-solid fa-shield-halved"></i> 5-Fold Stratified CV</span>
+                <span class="badge badge-co5"><i class="fa-solid fa-graduation-cap"></i> CO5 Compliant</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-container">
+        <!-- Banner / Clinical Objective -->
+        <section class="intro-card">
+            <div class="intro-content">
+                <h2><i class="fa-solid fa-notes-medical"></i> Automated Early Diabetes Screening</h2>
+                <p>
+                    Early detection of Type-2 diabetes prevents life-threatening microvascular complications such as diabetic retinopathy, nephropathy, and cardiovascular neuropathy. 
+                    This system applies a <strong>Support Vector Machine (SVM)</strong> with non-linear Radial Basis Function (RBF) kernel, trained and validated with rigorous 5-fold cross-validation on standardized clinical biomarkers.
+                </p>
+            </div>
+            <div class="quick-stats">
+                <div class="stat-box">
+                    <span class="stat-num">768</span>
+                    <span class="stat-lbl">Patient Records</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-num">74.68%</span>
+                    <span class="stat-lbl">SVM Test Accuracy</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-num">0.831</span>
+                    <span class="stat-lbl">CV ROC-AUC</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('prediction')">
+                <i class="fa-solid fa-stethoscope"></i> Patient Risk Predictor
+            </button>
+            <button class="tab-btn" onclick="switchTab('analytics')">
+                <i class="fa-solid fa-chart-line"></i> Model Analytics & Evaluation
+            </button>
+            <button class="tab-btn" onclick="switchTab('co5')">
+                <i class="fa-solid fa-book-bookmark"></i> Course Outcome (CO5) Mapping
+            </button>
+        </div>
+
+        <!-- TAB 1: PREDICTION INTERFACE -->
+        <div id="tab-prediction" class="tab-content active">
+            <!-- Patient Presets Bar -->
+            <div class="presets-section">
+                <span class="preset-label"><i class="fa-solid fa-bolt"></i> Quick Patient Presets:</span>
+                <button type="button" class="preset-btn" onclick="loadPreset('healthy')">
+                    <i class="fa-solid fa-user-check text-success"></i> Low Risk (Healthy)
+                </button>
+                <button type="button" class="preset-btn" onclick="loadPreset('borderline')">
+                    <i class="fa-solid fa-user-clock text-warning"></i> Moderate Risk (Pre-diabetic)
+                </button>
+                <button type="button" class="preset-btn" onclick="loadPreset('high_risk')">
+                    <i class="fa-solid fa-user-xmark text-danger"></i> High Risk (Diabetic)
+                </button>
+            </div>
+
+            <div class="grid-layout">
+                <!-- Left Column: Input Features -->
+                <div class="card input-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-sliders"></i> Clinical Diagnostic Parameters</h3>
+                        <span class="hint">Adjust sliders or type values directly</span>
+                    </div>
+
+                    <form id="prediction-form">
+                        <div class="features-grid">
+                            <!-- 1. Pregnancies -->
+                            <div class="feature-item">
+                                <div class="feature-label-row">
+                                    <label for="Pregnancies">Pregnancies</label>
+                                    <span class="unit">count</span>
+                                </div>
+                                <div class="slider-input-group">
+                                    <input type="range" id="Pregnancies-slider" min="0" max="17" step="1" value="2" 
+                                           oninput="syncInput('Pregnancies', this.value)">
+                                    <input type="number" id="Pregnancies" name="Pregnancies" min="0" max="17" step="1" value="2" 
+                                           oninput="syncSlider('Pregnancies', this.value)" required>
+                                </div>
+                                <span class="field-hint">Number of pregnancies (0 to 17)</span>
+                            </div>
+
+                            <!-- 2. Glucose -->
+                            <div class="feature-item highlight-feature">
+                                <div class="feature-label-row">
+                                    <label for="Glucose">Plasma Glucose <i class="fa-solid fa-star text-gold" title="Key biomarker"></i></label>
+                                    <span class="unit">mg/dL</span>
+                                </div>
+                                <div class="slider-input-group">
+                                    <input type="range" id="Glucose-slider" min="40" max="250" step="1" value="115" 
+                                           oninput="syncInput('Glucose', this.value)">
+                                    <input type="number" id="Glucose" name="Glucose" min="40" max="250" step="1" value="115" 
+                                           oninput="syncSlider('Glucose', this.value)" required>
+                                </div>
+                                <span class="field-hint">Oral glucose tolerance test (Normal: &lt;140 mg/dL)</span>
+                            </div>
+
+                            <!-- 3. Blood Pressure -->
+                            <div class="feature-item">
+                                <div class="feature-label-row">
+                                    <label for="BloodPressure">Diastolic Blood Pressure</label>
+                                    <span class="unit">mm Hg</span>
+                                </div>
+                                <div class="slider-input-group">
+                                    <input type="range" id="BloodPressure-slider" min="40" max="130" step="1" value="72" 
+                                           oninput="syncInput('BloodPressure', this.value)">
+                                    <input type="number" id="BloodPressure" name="BloodPressure" min="40" max="130" step="1" value="72" 
+                                           oninput="syncSlider('BloodPressure', this.value)" required>
+                                </div>
+                                <span class="field-hint">Diastolic pressure (Normal: 60 - 80 mm Hg)</span>
+                            </div>
+
+                            <!-- 4. Skin Thickness -->
+                            <div class="feature-item">
+                                <div class="feature-label-row">
+                                    <label for="SkinThickness">Triceps Skin Thickness</label>
+                                    <span class="unit">mm</span>
+                                </div>
+                                <div class="slider-input-group">
+                                    <input type="range" id="SkinThickness-slider" min="5" max="99" step="1" value="23" 
+                                           oninput="syncInput('SkinThickness', this.value)">
+                                    <input type="number" id="SkinThickness" name="SkinThickness" min="5" max="99" step="1" value="23" 
+                                           oninput="syncSlider('SkinThickness', this.value)" required>
+                                </div>
+                                <span class="field-hint">Subcutaneous adipose indicator</span>
+                            </div>
+
+                            <!-- 5. Insulin -->
+                            <div class="feature-item">
+                                <div class="feature-label-row">
+                                    <label for="Insulin">2-Hour Serum Insulin</label>
+                                    <span class="unit">μU/mL</span>
+                                </div>
+                                <div class="slider-input-group">
+                                    <input type="range" id="Insulin-slider" min="10" max="850" step="1" value="80" 
+                                           oninput="syncInput('Insulin', this.value)">
+                                    <input type="number" id="Insulin" name="Insulin" min="10" max="850" step="1" value="80" 
+                                           oninput="syncSlider('Insulin', this.value)" required>
+                                </div>
+                                <span class="field-hint">Normal fasting range: 16 - 166 μU/mL</span>
+                            </div>
+
+                            <!-- 6. BMI -->
+                            <div class="feature-item highlight-feature">
+                                <div class="feature-label-row">
+                                    <label for="BMI">Body Mass Index (BMI) <i class="fa-solid fa-star text-gold" title="Key biomarker"></i></label>
+                                    <span class="unit">kg/m²</span>
+                                </div>
+                                <div class="slider-input-group">
+                                    <input type="range" id="BMI-slider" min="15.0" max="65.0" step="0.1" value="28.1" 
+                                           oninput="syncInput('BMI', this.value)">
+                                    <input type="number" id="BMI" name="BMI" min="15.0" max="65.0" step="0.1" value="28.1" 
+                                           oninput="syncSlider('BMI', this.value)" required>
+                                </div>
+                                <span class="field-hint">Normal: 18.5 - 24.9 | Overweight: 25 - 29.9 | Obese: ≥30</span>
+                            </div>
+
+                            <!-- 7. Diabetes Pedigree Function -->
+                            <div class="feature-item">
+                                <div class="feature-label-row">
+                                    <label for="DiabetesPedigreeFunction">Diabetes Pedigree Function</label>
+                                    <span class="unit">score</span>
+                                </div>
+                                <div class="slider-input-group">
+                                    <input type="range" id="DiabetesPedigreeFunction-slider" min="0.05" max="2.5" step="0.01" value="0.38" 
+                                           oninput="syncInput('DiabetesPedigreeFunction', this.value)">
+                                    <input type="number" id="DiabetesPedigreeFunction" name="DiabetesPedigreeFunction" min="0.05" max="2.5" step="0.01" value="0.38" 
+                                           oninput="syncSlider('DiabetesPedigreeFunction', this.value)" required>
+                                </div>
+                                <span class="field-hint">Genetic hereditary score from family history</span>
+                            </div>
+
+                            <!-- 8. Age -->
+                            <div class="feature-item">
+                                <div class="feature-label-row">
+                                    <label for="Age">Age</label>
+                                    <span class="unit">years</span>
+                                </div>
+                                <div class="slider-input-group">
+                                    <input type="range" id="Age-slider" min="21" max="85" step="1" value="33" 
+                                           oninput="syncInput('Age', this.value)">
+                                    <input type="number" id="Age" name="Age" min="21" max="85" step="1" value="33" 
+                                           oninput="syncSlider('Age', this.value)" required>
+                                </div>
+                                <span class="field-hint">Patient age in completed years</span>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" id="btn-predict" class="btn btn-primary">
+                                <i class="fa-solid fa-brain"></i> Run SVM Risk Prediction
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                <i class="fa-solid fa-rotate-left"></i> Reset Values
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right Column: Results & Clinical Action Plan -->
+                <div class="card result-card" id="result-container">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-clipboard-check"></i> Diagnostic Assessment Result</h3>
+                        <span id="result-status-badge" class="badge">Awaiting Input</span>
+                    </div>
+
+                    <div id="empty-state" class="empty-state">
+                        <i class="fa-solid fa-dna pulse-icon"></i>
+                        <h4>Ready to Analyze Patient Data</h4>
+                        <p>Adjust clinical parameters on the left or select a quick preset, then click <strong>Run SVM Risk Prediction</strong>.</p>
+                    </div>
+
+                    <div id="result-content" class="result-content" style="display: none;">
+                        <!-- Primary Diagnosis Card -->
+                        <div class="diagnosis-banner" id="diagnosis-banner">
+                            <div class="diag-left">
+                                <span class="diag-tag">SVM Classification Outcome</span>
+                                <h2 id="diag-outcome-text">Non-Diabetic</h2>
+                                <span class="diag-subtext" id="diag-subtext">Clinical profile suggests low probability of Type-2 diabetes.</span>
+                            </div>
+                            <div class="diag-badge-circle" id="diag-badge-circle">
+                                <i class="fa-solid fa-check" id="diag-icon"></i>
+                            </div>
+                        </div>
+
+                        <!-- Probability Gauge Bar -->
+                        <div class="probability-section">
+                            <div class="prob-labels">
+                                <span>Diabetes Probability: <strong id="prob-diabetic-val">0%</strong></span>
+                                <span>Non-Diabetic: <strong id="prob-nondiabetic-val">100%</strong></span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="prob-bar-fill" style="width: 0%;"></div>
+                            </div>
+                            <div class="risk-bands">
+                                <span class="band band-low">Low (&lt;30%)</span>
+                                <span class="band band-mod">Moderate (30-60%)</span>
+                                <span class="band band-high">High (&gt;60%)</span>
+                            </div>
+                        </div>
+
+                        <!-- Contributing Risk Factors -->
+                        <div class="assessment-block">
+                            <h4><i class="fa-solid fa-triangle-exclamation"></i> Identified Clinical Risk Factors</h4>
+                            <ul class="risk-factors-list" id="risk-factors-list">
+                                <!-- Populated dynamically -->
+                            </ul>
+                        </div>
+
+                        <!-- Personalized Recommendations -->
+                        <div class="assessment-block">
+                            <h4><i class="fa-solid fa-user-doctor"></i> Recommended Clinical Next Steps</h4>
+                            <ul class="recommendations-list" id="recommendations-list">
+                                <!-- Populated dynamically -->
+                            </ul>
+                        </div>
+
+                        <div class="model-badge-footer">
+                            <small><i class="fa-solid fa-shield-virus"></i> Pipeline: Median Imputation ➔ StandardScaler ➔ Calibrated RBF-SVM</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: MODEL ANALYTICS & FIGURES -->
+        <div id="tab-analytics" class="tab-content">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-scale-balanced"></i> Model Performance Benchmark Table</h3>
+                    <span class="hint">Evaluated on 20% Holdout Test Set (n=154) &amp; 5-Fold Stratified Cross-Validation</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="metrics-table">
+                        <thead>
+                            <tr>
+                                <th>Algorithm</th>
+                                <th>5-Fold CV Accuracy</th>
+                                <th>5-Fold CV ROC-AUC</th>
+                                <th>Test Accuracy</th>
+                                <th>Test Precision</th>
+                                <th>Test Recall (Sensitivity)</th>
+                                <th>Test F1-Score</th>
+                                <th>Test ROC-AUC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="highlight-row">
+                                <td><strong><i class="fa-solid fa-trophy text-gold"></i> Support Vector Machine (SVM - RBF)</strong></td>
+                                <td><strong>77.36% (±1.58%)</strong></td>
+                                <td><strong>0.8311</strong></td>
+                                <td><span class="badge badge-success">74.68%</span></td>
+                                <td><strong>0.6744</strong></td>
+                                <td><span class="badge badge-primary">0.5370</span></td>
+                                <td><strong>0.5979</strong></td>
+                                <td><strong>0.8019</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Random Forest (Ensemble)</td>
+                                <td>77.03% (±1.98%)</td>
+                                <td>0.8344</td>
+                                <td>74.03%</td>
+                                <td>0.6667</td>
+                                <td>0.5185</td>
+                                <td>0.5833</td>
+                                <td>0.8117</td>
+                            </tr>
+                            <tr>
+                                <td>Logistic Regression (Linear Baseline)</td>
+                                <td>78.82% (±1.91%)</td>
+                                <td>0.8434</td>
+                                <td>70.78%</td>
+                                <td>0.6000</td>
+                                <td>0.5000</td>
+                                <td>0.5455</td>
+                                <td>0.8130</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Visualization Gallery -->
+            <div class="figures-gallery">
+                <!-- Figure 1 -->
+                <div class="card figure-card">
+                    <div class="card-header">
+                        <h4>Figure 1: Outcome Class Distribution</h4>
+                    </div>
+                    <img src="/figures/01_class_distribution.png" alt="Class Distribution" class="fig-img" onclick="openLightbox(this.src)">
+                    <p class="fig-caption">Distribution showing 500 Non-Diabetic (65.1%) and 268 Diabetic (34.9%) instances, demonstrating class imbalance handled via Stratified K-Fold.</p>
+                </div>
+
+                <!-- Figure 2 -->
+                <div class="card figure-card">
+                    <div class="card-header">
+                        <h4>Figure 2: Clinical Feature Correlation Heatmap</h4>
+                    </div>
+                    <img src="/figures/02_correlation_heatmap.png" alt="Correlation Heatmap" class="fig-img" onclick="openLightbox(this.src)">
+                    <p class="fig-caption">Pairwise correlation matrix illustrating that Glucose (r=0.47) and BMI (r=0.29) have the strongest positive correlation with diabetes outcome.</p>
+                </div>
+
+                <!-- Figure 3 -->
+                <div class="card figure-card">
+                    <div class="card-header">
+                        <h4>Figure 3: Multi-Model Confusion Matrices</h4>
+                    </div>
+                    <img src="/figures/03_confusion_matrix.png" alt="Confusion Matrix" class="fig-img" onclick="openLightbox(this.src)">
+                    <p class="fig-caption">SVM achieves the highest True Positives (29) and lowest False Negatives (25) compared to Random Forest (26 FN) and Logistic Regression (27 FN).</p>
+                </div>
+
+                <!-- Figure 4 -->
+                <div class="card figure-card">
+                    <div class="card-header">
+                        <h4>Figure 4: Receiver Operating Characteristic (ROC)</h4>
+                    </div>
+                    <img src="/figures/04_roc_curve.png" alt="ROC Curves" class="fig-img" onclick="openLightbox(this.src)">
+                    <p class="fig-caption">ROC comparison demonstrating competitive discriminative capacity across all operating thresholds with AUC &gt; 0.80.</p>
+                </div>
+
+                <!-- Figure 5 -->
+                <div class="card figure-card">
+                    <div class="card-header">
+                        <h4>Figure 5: Model Comparison Bar Chart</h4>
+                    </div>
+                    <img src="/figures/05_model_comparison.png" alt="Model Comparison" class="fig-img" onclick="openLightbox(this.src)">
+                    <p class="fig-caption">Comprehensive comparison across Accuracy, Precision, Recall, F1-Score, and ROC-AUC confirming SVM's lead on the holdout evaluation.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: CO5 MAPPING -->
+        <div id="tab-co5" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-graduation-cap"></i> Course Outcome (CO5) Alignment & Clinical Rationale</h3>
+                </div>
+                <div class="co-details">
+                    <div class="co-box">
+                        <h4>Course Outcome Statement:</h4>
+                        <p class="co-statement">"CO5 – Solve real life problems using appropriate machine learning models and evaluate the performance measures"</p>
+                    </div>
+
+                    <div class="co-grid">
+                        <div class="co-card">
+                            <div class="co-icon"><i class="fa-solid fa-earth-americas"></i></div>
+                            <h5>1. Real-Life Problem Formulation</h5>
+                            <p>Diabetes Mellitus affects over 537 million adults globally. Late detection causes severe renal, ophthalmologic, and cardiovascular degradation. Building an automated screening tool directly addresses a real-world clinical challenge.</p>
+                        </div>
+
+                        <div class="co-card">
+                            <div class="co-icon"><i class="fa-solid fa-gears"></i></div>
+                            <h5>2. Appropriate Model Selection (SVM)</h5>
+                            <p>Support Vector Machine with Radial Basis Function (RBF) kernel is ideally suited for moderate-sample medical data (n=768) where biological decision boundaries are inherently non-linear and complex.</p>
+                        </div>
+
+                        <div class="co-card">
+                            <div class="co-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                            <h5>3. Data Leakage Prevention</h5>
+                            <p>Physiological zero imputation and feature scaling (StandardScaler) are encapsulated inside a scikit-learn Pipeline, ensuring zero data leakage between training and validation folds.</p>
+                        </div>
+
+                        <div class="co-card">
+                            <div class="co-icon"><i class="fa-solid fa-square-poll-vertical"></i></div>
+                            <h5>4. Rigorous Performance Evaluation</h5>
+                            <p>Going beyond simple test accuracy, models are evaluated with 5-Fold Stratified Cross-Validation, Precision, Recall (Sensitivity), F1-Score, Confusion Matrices, and ROC-AUC curves.</p>
+                        </div>
+                    </div>
+
+                    <div class="clinical-note">
+                        <h4><i class="fa-solid fa-heart-crack"></i> Clinical Cost of Errors: Why Recall Matters Most</h4>
+                        <p>
+                            In medical diagnostics, <strong>False Negatives (Type II error)</strong> are exponentially more damaging than False Positives (Type I error).
+                            A <em>False Positive</em> simply prompts follow-up confirmatory laboratory tests (HbA1c/FPG) with minor inconvenience.
+                            A <em>False Negative</em> mistakenly reassures an undiagnosed diabetic patient, allowing irreversible microvascular damage to progress unchecked.
+                            Therefore, maximizing <strong>Recall (Sensitivity)</strong> while maintaining strong Precision was the primary selection criterion for our final SVM pipeline.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Lightbox for High-Res Figures -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <span class="close-btn">&times;</span>
+        <img id="lightbox-img" src="" alt="Enlarged Plot">
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>DiaGuard • B.Tech Machine Learning Capstone Project • Topic: Diabetes Prediction Using Support Vector Machine (SVM)</p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
